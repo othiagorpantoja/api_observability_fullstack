@@ -1,0 +1,37 @@
+{
+  "id": null,
+  "title": "API - Logs",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Logs por rota (5m)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "sum by (route) (count_over_time({service=\"observabilidade-otel-api\"}[5m]))"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "Logs (últimos 10m)",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 16 },
+      "options": { "showLabels": true, "showTime": true },
+      "targets": [
+        {
+          "refId": "B",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "{service=\"observabilidade-otel-api\"}",
+          "queryType": "range",
+          "range": true
+        }
+      ]
+    }
+  ]
+}

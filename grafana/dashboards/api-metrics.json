@@ -1,0 +1,124 @@
+{
+  "id": null,
+  "title": "API - Métricas",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "route",
+        "label": "Rota",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "query": "label_values(http_requests_total, route)",
+        "refresh": 1,
+        "current": { "text": "", "value": "" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Requisições por segundo",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_requests_total[1m]))"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latência p95 (s)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Top rotas por p95 (5m)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 10 },
+      "fieldConfig": {
+      "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green" },
+              { "color": "red", "value": 0.5 }
+            ]
+          },
+          "links": [
+            {
+              "title": "Ver logs da rota",
+              "url": "http://localhost:3001/explore?orgId=1&left=%7B%22datasource%22:%22loki%22,%22queries%22:[%7B%22refId%22:%22A%22,%22expr%22:%22%7Bservice%3D%5C%22observabilidade-otel-api%5C%22,route%3D%5C%22$${__value.text}%5C%22%7D%22%7D]%7D",
+              "targetBlank": true
+            }
+          ]
+        }
+      },
+      "transformations": [
+        { "id": "sortBy", "options": { "fields": {}, "order": "desc" } }
+      ],
+      "targets": [
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "title": "Drill-down para logs",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 10 },
+      "options": {
+        "mode": "html",
+        "content": "<p>Selecione uma rota acima ou informe na variável e abra os logs filtrados:</p><p><a href=\"http://localhost:3001/explore?orgId=1&left=%7B%22datasource%22:%22loki%22,%22queries%22:[%7B%22refId%22:%22A%22,%22expr%22:%22%7Bservice%3D%5C%22observabilidade-otel-api%5C%22,route%3D%5C%22$${__var:route}%5C%22%7D%22%7D]%7D\" target=\"_blank\">Abrir logs da rota</a></p>"
+      }
+    }
+    ,
+    {
+      "type": "table",
+      "title": "Top rotas por erro % (5m)",
+      "gridPos": { "x": 0, "y": 18, "w": 12, "h": 10 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green" },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "links": [
+            {
+              "title": "Ver logs da rota",
+              "url": "http://localhost:3001/explore?orgId=1&left=%7B%22datasource%22:%22loki%22,%22queries%22:[%7B%22refId%22:%22A%22,%22expr%22:%22%7Bservice%3D%5C%22observabilidade-otel-api%5C%22,route%3D%5C%22$${__value.text}%5C%22%7D%22%7D]%7D",
+              "targetBlank": true
+            }
+          ]
+        }
+      },
+      "transformations": [
+        { "id": "sortBy", "options": { "fields": {}, "order": "desc" } }
+      ],
+      "targets": [
+        {
+          "refId": "D",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "((sum by (route) (rate(http_requests_total{status=~\\\"5..\\\"}[5m]))) / (sum by (route) (rate(http_requests_total[5m])))) * 100"
+        }
+      ]
+    }
+  ]
+}

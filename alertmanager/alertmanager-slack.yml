@@ -1,0 +1,25 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 30m
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: slack
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: http://api:3000/alertmanager/webhook
+        send_resolved: true
+  - name: slack
+    slack_configs:
+      - api_url: ${SLACK_API_URL}
+        channel: "#observability-alerts"
+        title: '{{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})'
+        text: '{{ range .Alerts }}*{{ .Labels.alertname }}* {{ .Annotations.summary }} — {{ .Status }}{{ "\n" }}{{ end }}'

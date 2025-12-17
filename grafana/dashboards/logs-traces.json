@@ -1,0 +1,45 @@
+{
+  "id": null,
+  "title": "Logs ↔ Traces",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "templating": {
+    "list": [
+      {
+        "type": "textbox",
+        "name": "traceId",
+        "label": "Trace ID",
+        "query": "",
+        "current": { "text": "", "value": "" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "Como correlacionar",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 6 },
+      "options": {
+        "mode": "html",
+        "content": "<p>1) Use o Explore (Loki) e filtre por <code>trace_id</code>.<br/>2) Ou informe um Trace ID abaixo e clique para abrir no Jaeger.</p><p><a href=\"http://localhost:16686/trace/${var:traceId}\" target=\"_blank\">Abrir Trace no Jaeger</a></p>"
+      }
+    },
+    {
+      "type": "logs",
+      "title": "Logs (últimos 10m)",
+      "gridPos": { "x": 0, "y": 6, "w": 24, "h": 18 },
+      "options": { "showLabels": true, "showTime": true },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "{service=\"observabilidade-otel-api\"}",
+          "queryType": "range",
+          "range": true
+        }
+      ]
+    }
+  ]
+}

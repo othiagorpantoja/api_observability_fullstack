@@ -1,0 +1,19 @@
+{
+  "id": null,
+  "title": "Traces - Jaeger",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "text",
+      "title": "Abrir Jaeger",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
+      "options": {
+        "mode": "html",
+        "content": "<a href=\"http://localhost:16686\" target=\"_blank\">Abrir Jaeger UI</a>"
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": null,
+  "title": "API - SLOs",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "gauge",
+      "title": "Disponibilidade (24h)",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "1 - (sum(increase(http_requests_total{status=~\"5..\"}[24h])) / sum(increase(http_requests_total[24h])))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "min": 0, "max": 1 } }
+    },
+    {
+      "type": "stat",
+      "title": "Erro % (1h)",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "(sum(rate(http_requests_total{status=~\"5..\"}[1h])) / sum(rate(http_requests_total[1h]))) * 100"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latência p95 (5m)",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "SLO por rota (p95 e erro %)",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 12 },
+      "targets": [
+        {
+          "refId": "D",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "label_replace(histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m]))), \"__name__\", \"p95\", \"__name__\", \".*\")"
+        },
+        {
+          "refId": "E",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "label_replace(((sum by (route) (rate(http_requests_total{status=~\"5..\"}[5m]))) / (sum by (route) (rate(http_requests_total[5m])))) * 100, \"__name__\", \"error_percent\", \"__name__\", \".*\")"
+        }
+      ]
+    }
+  ]
+}

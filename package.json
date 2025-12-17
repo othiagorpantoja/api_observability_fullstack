@@ -1,0 +1,32 @@
+{
+  "name": "observabilidade-otel-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API completa com Observabilidade: OpenTelemetry (traces), Prometheus (métricas), Loki/Promtail (logs), Jaeger, Grafana, Terraform e CI/CD",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "winston": "^3.13.0",
+    "@opentelemetry/api": "^1.8.0",
+    "@opentelemetry/sdk-node": "^0.55.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.55.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.55.0",
+    "@opentelemetry/resources": "^1.8.0",
+    "@opentelemetry/semantic-conventions": "^1.27.0",
+    "prom-client": "^15.0.1"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3",
+    "@types/express": "^4.17.21"
+  }
+}

@@ -1,0 +1,35 @@
+groups:
+  - name: api-alerts
+    rules:
+      - alert: HighLatencyP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Latência p95 alta
+          description: Latência p95 acima de 500ms por 5 minutos
+      - alert: HighErrorRate
+        expr: (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Taxa de erros alta
+          description: Erros 5xx acima de 5% por 5 minutos
+      - alert: HighLatencyP95ByRoute
+        expr: histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Latência p95 alta na rota
+          description: Latência p95 acima de 500ms por 5 minutos na rota {{ $labels.route }}
+      - alert: HighErrorRateByRoute
+        expr: ((sum by (route) (rate(http_requests_total{status=~"5.."}[5m]))) / (sum by (route) (rate(http_requests_total[5m])))) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Taxa de erros alta na rota
+          description: Erros 5xx acima de 5% por 5 minutos na rota {{ $labels.route }}
